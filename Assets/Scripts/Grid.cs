@@ -36,5 +36,8 @@ public class Grid : MonoBehaviour
 		material.SetTextureScale( "_MainTex", new Vector2( columns, rows ) );
 		
 	}
+
+    public void DisableGrig()
+    { }
 	
 }

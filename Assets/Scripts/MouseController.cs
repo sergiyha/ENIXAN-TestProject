@@ -17,11 +17,16 @@ public class MouseController : MonoBehaviour
     private int lengthOfOneTile;
     public Transform cursor;
 
+
     public Limits cameraLimits = new Limits();
     public Limits mouseScrollLimits = new Limits();
     public MouseController Instance;
 
     public float cameraMoveSpeed;
+    public float cameraScrollSpead;
+    public float maxMouseScroll = 45f;
+    public float minMouseScroll = 25f;
+
     public float mouseBorders = 25;
 
     // Use this for initialization
@@ -40,29 +45,52 @@ public class MouseController : MonoBehaviour
         mouseScrollLimits.downLimit = mouseBorders;
 
     }
-
+    
 
 
     // Update is called once per frame
     void Update()
     {
-
+        //Clamp canera position
         transform.position =
             new Vector3(
             Mathf.Clamp(transform.position.x, cameraLimits.leftLimit, cameraLimits.rightLimit),
             transform.position.y,
             Mathf.Clamp(transform.position.z, cameraLimits.downLimit, cameraLimits.upLimit));
 
+        
+        if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            if (DesiredScrollRotation(false) < maxMouseScroll)
+            {
+                transform.rotation = Quaternion.Euler(
+                    DesiredScrollRotation(false),
+                    transform.rotation.eulerAngles.y,
+                    transform.rotation.eulerAngles.z);
+            }
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        {
+            if (DesiredScrollRotation(true) > minMouseScroll)
+            {
+                transform.rotation = Quaternion.Euler(
+                DesiredScrollRotation(true),
+                transform.rotation.eulerAngles.y,
+                transform.rotation.eulerAngles.z);
+            }
+        }
+         
 
        
 
 
         if (CheckIfUserCameraInput())
         {
-            
-            Vector3 cameraDesireMove = GetTranslation();
+
+            transform.Translate(GetTranslation());
+           /* Vector3 cameraDesireMove = GetTranslation();
             if (!IsDesiredPositionOutOfBoundsries(cameraDesireMove))
-                transform.Translate(cameraDesireMove, Space.Self);
+                transform.Translate(cameraDesireMove, Space.Self);*/
         }
 
 
@@ -86,7 +114,13 @@ public class MouseController : MonoBehaviour
 
 
 
-
+    public float DesiredScrollRotation(bool isScrollDown)
+    {
+        float desiredPosition = 0.0f;
+        if (isScrollDown) desiredPosition  = transform.rotation.eulerAngles.x - cameraScrollSpead * Time.deltaTime;
+        if (!isScrollDown) desiredPosition = transform.rotation.eulerAngles.x + cameraScrollSpead * Time.deltaTime;
+        return desiredPosition;
+    } 
 
 
     public bool IsMousePositionIsWithinTheBoundaries()
@@ -151,7 +185,7 @@ public class MouseController : MonoBehaviour
         return new Vector3(moveX, moveY, moveZ);
     }
 
-    public bool IsDesiredPositionOutOfBoundsries(Vector3 desiredPosition)
+   /* public bool IsDesiredPositionOutOfBoundsries(Vector3 desiredPosition)
     {
         
         bool overBoundaries = false;
@@ -163,7 +197,7 @@ public class MouseController : MonoBehaviour
             overBoundaries = true;
         if (transform.position.z + desiredPosition.z < cameraLimits.downLimit)
             overBoundaries = true;
-        return overBoundaries;
+        return overBoundaries;*/
 
     }
 
@@ -174,4 +208,4 @@ public class MouseController : MonoBehaviour
 
 
 
-}
+
