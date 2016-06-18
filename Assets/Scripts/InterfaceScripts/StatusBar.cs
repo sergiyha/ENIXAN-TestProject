@@ -2,9 +2,9 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class InterfaceController : MonoBehaviour {
+public class StatusBar : MonoBehaviour {
 
-    
+
     public RectTransform statusBarTransform;
     private float maxBarPosition;
     private float currentStatusBarPosition;
@@ -16,24 +16,25 @@ public class InterfaceController : MonoBehaviour {
 
 
 
-	void Start () {
+    void Start()
+    {
         maxBarPosition = statusBarTransform.anchoredPosition.x;
         minBarPosition = statusBarTransform.anchoredPosition.x - statusBarTransform.rect.width;
         currentTimerValue = 0.0f;
         timerSize = 60.0f;
-        Debug.Log(minBarPosition);
         level = 0;
-        statusBarLevel.text = level.ToString(); 
-        
-       
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        
+        statusBarLevel.text = level.ToString();
+
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
         currentStatusBarPosition = SetStatusBarPositionAccordingToTimerValue(CurrentTimerValue(), 0.0f, timerSize, minBarPosition, maxBarPosition);
-        statusBarTransform.anchoredPosition = new Vector2(currentStatusBarPosition,statusBarTransform.anchoredPosition.y);
-        
+        statusBarTransform.anchoredPosition = new Vector2(currentStatusBarPosition, statusBarTransform.anchoredPosition.y);
+
 
     }
 
@@ -56,4 +57,6 @@ public class InterfaceController : MonoBehaviour {
 
 
 
+
 }
+
