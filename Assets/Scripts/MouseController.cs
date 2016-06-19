@@ -15,9 +15,10 @@ public class MouseController : MonoBehaviour
     public Grid grid;
 
     private int lengthOfOneTile;
-    public GameObject cursor;
+    public GameObject currentObject;
     public GameObject tree;
     public GameObject stone;
+    public GameObject remover;
 
 
     public Limits cameraLimits = new Limits();
@@ -29,18 +30,39 @@ public class MouseController : MonoBehaviour
     public float maxMouseScroll = 45f;
     public float minMouseScroll = 25f;
 
+    public bool canRemove;
+
+    int arraySizeX;
+    int arraySizeZ;
 
     public float mouseBorders = 25;
 
     private Vector3 pos;
-    bool [][] BusyPlaces;
-    GameObject[][] PlacedObjects;
+    bool[,] BusyPlaces;
+    GameObject[,] PlacedObjects;
+
+    int x;
+    int z;
+
+    private WindowsController windowsController;
+
+
 
     // Use this for initialization
     void Awake()
     {
+        canRemove = false;
         grid = FindObjectOfType<Grid>();
+
+
+        arraySizeX = grid.columns;
+        arraySizeZ = grid.rows;
+
+        BusyPlaces = new bool[arraySizeX, arraySizeZ];
+        PlacedObjects = new GameObject[arraySizeX, arraySizeZ];
+
         lengthOfOneTile = Mathf.FloorToInt(grid.gridSize.x / grid.columns);
+
         cameraLimits.leftLimit = -30.0f;
         cameraLimits.rightLimit = 65.0f;
         cameraLimits.upLimit = 65.0f;
@@ -51,10 +73,20 @@ public class MouseController : MonoBehaviour
         mouseScrollLimits.upLimit = mouseBorders;
         mouseScrollLimits.downLimit = mouseBorders;
 
+
     }
     void Start()
     {
+        windowsController = FindObjectOfType<WindowsController>();
 
+
+        for (int i = 0; i < arraySizeZ; i++)
+        {
+            for (int j = 0; j < arraySizeZ; j++)
+            {
+                BusyPlaces[i, j] = false;
+            }
+        }
     }
 
 
@@ -62,7 +94,7 @@ public class MouseController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
 
         if (CheckIfUserCameraInput())
         {
@@ -101,7 +133,37 @@ public class MouseController : MonoBehaviour
             }
         }
 
+        //Place and remove mechanizm
+        if (currentObject != null)
+        {
+            if (Input.GetKey(KeyCode.Mouse0))
+            {
+                if (x >= 0 && x < grid.columns && z >= 0 && z < grid.rows)
+                {
+                    if (currentObject ==remover)
+                    {                      
+                       // if()
+                        if (BusyPlaces[x, z])
+                        {                          
+                            Destroy(PlacedObjects[x, z]);
+                            BusyPlaces[x, z] = false;
+                        }
+                    }
+                    else {
+                        if (!BusyPlaces[x, z])
+                        {
+                            PlacedObjects[x, z] = Instantiate(
+                                currentObject,
+                                new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2),
+                                Quaternion.identity) as GameObject;
+                            BusyPlaces[x, z] = true;
 
+                        }
+                    }
+
+                }
+            }
+        }
 
 
 
@@ -113,23 +175,24 @@ public class MouseController : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
-        if (collider.Raycast(ray, out hitInfo, Mathf.Infinity))
+        if (currentObject != null)
         {
-            int x = Mathf.FloorToInt(hitInfo.point.x / lengthOfOneTile);
-            int z = Mathf.FloorToInt(hitInfo.point.z / lengthOfOneTile);
-            Debug.Log(x + " " + z);
-            if (x < grid.columns && x >= 0 && z < grid.rows && z >= 0)
-                cursor.transform.position = new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2);
-            else if (x >= grid.columns && z < grid.rows && z >= 0)
-                cursor.transform.position = new Vector3((grid.columns - 1) * lengthOfOneTile + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2);
-            else if (x < 0 && z < grid.rows && z >= 0)
-                cursor.transform.position = new Vector3((0 * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2);
-            else if (z >= grid.rows && x < grid.rows && x >= 0)
-                cursor.transform.position = new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, ((grid.rows - 1) * lengthOfOneTile) + (float)lengthOfOneTile / 2);
-            else if (z < 0 && x < grid.rows && x >= 0)
-                cursor.transform.position = new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (0 * lengthOfOneTile) + (float)lengthOfOneTile / 2);
-
-
+            if (collider.Raycast(ray, out hitInfo, Mathf.Infinity))
+            {
+                x = Mathf.FloorToInt(hitInfo.point.x / lengthOfOneTile);
+                z = Mathf.FloorToInt(hitInfo.point.z / lengthOfOneTile);
+                // Debug.Log(x + " " + z);
+                if (x < grid.columns && x >= 0 && z < grid.rows && z >= 0)
+                    currentObject.transform.position = new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2);
+                else if (x >= grid.columns && z < grid.rows && z >= 0)
+                    currentObject.transform.position = new Vector3((grid.columns - 1) * lengthOfOneTile + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2);
+                else if (x < 0 && z < grid.rows && z >= 0)
+                    currentObject.transform.position = new Vector3((0 * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2);
+                else if (z >= grid.rows && x < grid.rows && x >= 0)
+                    currentObject.transform.position = new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, ((grid.rows - 1) * lengthOfOneTile) + (float)lengthOfOneTile / 2);
+                else if (z < 0 && x < grid.rows && x >= 0)
+                    currentObject.transform.position = new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (0 * lengthOfOneTile) + (float)lengthOfOneTile / 2);
+            }
         }
     }
 
@@ -206,19 +269,7 @@ public class MouseController : MonoBehaviour
         return new Vector3(moveX, moveY, moveZ);
     }
 
-    /* public bool IsDesiredPositionOutOfBoundsries(Vector3 desiredPosition)
-     {
 
-         bool overBoundaries = false;
-         if (transform.position.x + desiredPosition.x < cameraLimits.leftLimit)
-             overBoundaries = true;
-         if (transform.position.x + desiredPosition.x > cameraLimits.rightLimit)
-             overBoundaries = true;
-         if (transform.position.z + desiredPosition.z > cameraLimits.upLimit)
-             overBoundaries = true;
-         if (transform.position.z + desiredPosition.z < cameraLimits.downLimit)
-             overBoundaries = true;
-         return overBoundaries;*/
 
 }
 
