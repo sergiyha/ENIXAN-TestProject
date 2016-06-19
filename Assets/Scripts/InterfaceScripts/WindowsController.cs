@@ -74,20 +74,21 @@ public class WindowsController : MonoBehaviour
 
     public void OnClickStoneButton()
     {
-        mouseController.currentObject = mouseController.stone;
-        window.currentWindow.SetActive(false);
-        mouseController.canRemove = false;
+        SetObjectAsCurrent(mouseController.stone);
     }
 
     public void OnClickTreeButton()
     {
-        mouseController.currentObject = mouseController.tree;
-        window.currentWindow.SetActive(false);
-        mouseController.canRemove = true;
+        SetObjectAsCurrent(mouseController.tree);
     }
     public void OnClickRemoverButton()
     {
+        if (mouseController.currentObject != null)
+        {
+            mouseController.currentObject.SetActive(false);
+        }
         mouseController.currentObject = mouseController.remover;
+        mouseController.currentObject.SetActive(true);
         window.currentWindow.SetActive(false);
         mouseController.canRemove = true;
     }
@@ -113,4 +114,18 @@ public class WindowsController : MonoBehaviour
             gb.gridObject.SetActive(true);
         }
     }
+
+
+
+    public void  SetObjectAsCurrent(GameObject desiredObject)
+    {
+        if (mouseController.currentObject != null)
+        {
+            mouseController.currentObject.SetActive(false);
+        }
+        mouseController.currentObject = desiredObject;
+        mouseController.currentObject.SetActive(true);
+        window.currentWindow.SetActive(false);
+        mouseController.canRemove = true;
+    } 
 }

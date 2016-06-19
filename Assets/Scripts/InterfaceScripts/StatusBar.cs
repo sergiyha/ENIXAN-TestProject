@@ -2,7 +2,8 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class StatusBar : MonoBehaviour {
+public class StatusBar : MonoBehaviour
+{
 
 
     public RectTransform statusBarTransform;

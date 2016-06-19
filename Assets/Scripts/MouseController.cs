@@ -94,7 +94,7 @@ public class MouseController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
 
         if (CheckIfUserCameraInput())
         {
@@ -136,28 +136,31 @@ public class MouseController : MonoBehaviour
         //Place and remove mechanizm
         if (currentObject != null)
         {
-            if (Input.GetKey(KeyCode.Mouse0))
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
                 if (x >= 0 && x < grid.columns && z >= 0 && z < grid.rows)
                 {
-                    if (currentObject ==remover)
-                    {                      
-                       // if()
-                        if (BusyPlaces[x, z])
-                        {                          
-                            Destroy(PlacedObjects[x, z]);
-                            BusyPlaces[x, z] = false;
-                        }
-                    }
-                    else {
-                        if (!BusyPlaces[x, z])
+                    if (!windowsController.window.currentWindow.activeInHierarchy || windowsController.window.currentWindow == null)
+                    {
+                        if (currentObject == remover)
                         {
-                            PlacedObjects[x, z] = Instantiate(
-                                currentObject,
-                                new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2),
-                                Quaternion.identity) as GameObject;
-                            BusyPlaces[x, z] = true;
+                            // if()
+                            if (BusyPlaces[x, z])
+                            {
+                                Destroy(PlacedObjects[x, z]);
+                                BusyPlaces[x, z] = false;
+                            }
+                        }
+                        else {
+                            if (!BusyPlaces[x, z])
+                            {
+                                PlacedObjects[x, z] = Instantiate(
+                                    currentObject,
+                                    new Vector3((x * lengthOfOneTile) + (float)lengthOfOneTile / 2, 0, (z * lengthOfOneTile) + (float)lengthOfOneTile / 2),
+                                    Quaternion.identity) as GameObject;
+                                BusyPlaces[x, z] = true;
 
+                            }
                         }
                     }
 
@@ -175,7 +178,7 @@ public class MouseController : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
-        if (currentObject != null)
+        if (currentObject != null && (!windowsController.window.currentWindow.activeInHierarchy || windowsController.window.currentWindow == null))
         {
             if (collider.Raycast(ray, out hitInfo, Mathf.Infinity))
             {
